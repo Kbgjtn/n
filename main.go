@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"log/slog"
 	"os"
@@ -12,18 +13,19 @@ import (
 	"github.com/Kbgjtn/notethingness-api.git/api"
 )
 
-func main() {
-	if err := godotenvvault.Load(".env.local"); err != nil {
-		slog.Error(" [ 💢Cannot load .env file ] ")
-		os.Exit(1)
+func initServer(ctx context.Context) error {
+	if err := godotenvvault.Load("./.env.local"); err != nil {
+		return fmt.Errorf(" [ 💢Cannot load .env.local! ] " + "\nError: " + err.Error())
 	}
+	server := api.NewServer()
+	return server.Start(ctx)
+}
 
+func main() {
 	serverCtx, stopCtx := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stopCtx()
 
-	server := api.NewServer()
-
-	if err := server.Start(serverCtx); err != nil {
+	if err := initServer(serverCtx); err != nil {
 		log.Fatal("can't run the server: ", err)
 		slog.Error(" [ 💢Cannot run the server! ] " + "\nError: " + err.Error())
 		os.Exit(1)
