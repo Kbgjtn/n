@@ -15,12 +15,17 @@ migratedown:
 	@migrate
 
 run: 
+	@echo "Running Test ..."
+	@go test -v ./...
+	@echo "Success Running Test..."
+	@sleep 3
 	@echo "Running Server..."
+	@clear
 	@go run main.go
 
 test:
 	@echo "Testing..."
-	@go test -v -cover ./...
+	@go test -v ./...
 
 tidy:
 	@echo "Tidying..."
