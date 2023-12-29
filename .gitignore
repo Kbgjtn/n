@@ -1,0 +1,64 @@
+.env
+.env.local
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.lib
+
+# Folders
+_test/
+
+# Log files and other generated files
+*.log
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Go-specific
+# Binary
+bin/
+# Object
+obj/
+# Go Modules
+go.sum
+# Uncomment if you are using Glide
+# glide.lock
+# Uncomment if you are using Godep
+# Godeps/
+# VS Code
+.vscode/
+# IntelliJ
+.idea/
+
+# Compiled Go files
+*.6
+*.out
+*.test
+*.prof
+
+# Tool binaries
+*.exe
+
+# Output files
+*.out
