@@ -6,10 +6,9 @@ import (
 
 	"github.com/Kbgjtn/notethingness-api.git/api/handler"
 	"github.com/Kbgjtn/notethingness-api.git/api/repository"
-	"github.com/Kbgjtn/notethingness-api.git/api/service"
+	"github.com/Kbgjtn/notethingness-api.git/types"
 )
 
-// Routes initialize API routes
 func (s *Server) Routes() {
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
@@ -19,11 +18,7 @@ func (s *Server) Routes() {
 	s.router = router
 }
 
-// InitRoute initialize API routes
 func (s *Server) InitRoute(router chi.Router) {
-	repo := repository.New(s.db)
-	service := service.New(repo)
-
-	// Quotes resource routes
-	router.Mount("/quotes", handler.New(service).Routes())
+	var r types.Repository = repository.NewQuoteRepo(s.db)
+	router.Mount("/quotes", handler.New(r).Routes(router))
 }

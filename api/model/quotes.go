@@ -34,13 +34,13 @@ func (q Quotes) Len() int {
 }
 
 // Less reports whether the element with
-func (q Quotes) CreateResponseDto(pag *types.Pageable) ListQuoteResponse {
+func (q Quotes) CreateResponseDto(pag types.Pageable) ListQuoteResponse {
 	if pag.Total > 0 {
 		pag.Calc()
 		return ListQuoteResponse{
 			Data:     q,
 			Length:   len(q),
-			Pageable: pag,
+			Paginate: &pag,
 		}
 	}
 
@@ -104,9 +104,9 @@ type DataQuote struct {
 
 // ListDataQuotes is the response dto for a list of quotes
 type ListDataQuotes struct {
-	Data   Quotes `json:"data"`
-	Length int    `json:"length"`
-	*types.Pageable
+	Data     Quotes          `json:"data"`
+	Length   int             `json:"length"`
+	Paginate *types.Pageable `json:"paginate"`
 }
 
 // CreateQuoteResponse is the response dto for creating a quote
