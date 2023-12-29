@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Kbgjtn/notethingness-api.git/db"
-	"github.com/Kbgjtn/notethingness-api.git/util"
 )
 
-// Config holds the server configuration
 type Config struct {
 	port    string
 	host    string
@@ -20,20 +19,18 @@ type Config struct {
 	connStr string
 }
 
-// Server holds the dependencies for the HTTP server
 type Server struct {
 	router http.Handler
 	db     *sql.DB
 	config *Config
 }
 
-// NewServer creates a new server instance
 func NewServer() *Server {
 	config := &Config{
-		port:    ":" + util.Env("PORT"),
-		host:    util.Env("HOST"),
-		url:     fmt.Sprintf("http://%s:%s", util.Env("HOST"), util.Env("PORT")),
-		connStr: util.Env("DB_URL"),
+		port:    ":" + os.Getenv("PORT"),
+		host:    os.Getenv("HOST"),
+		url:     fmt.Sprintf("http://%s:%s", os.Getenv("HOST"), os.Getenv("PORT")),
+		connStr: os.Getenv("DB_URL"),
 	}
 
 	db := db.NewDatabase("file://db/migration")

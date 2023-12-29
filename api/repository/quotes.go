@@ -12,23 +12,17 @@ import (
 	"github.com/Kbgjtn/notethingness-api.git/types"
 )
 
-// QuotesRepository is a struct that defines the repository for quotes
 type QuotesRepository struct {
-	db *sql.DB
+	store *sql.DB
 }
 
-// New returns a new instance of QuotesRepository
-func New(db *sql.DB) *QuotesRepository {
-	return &QuotesRepository{db}
+func NewQuoteRepo(s *sql.DB) *QuotesRepository {
+	return &QuotesRepository{s}
 }
 
-// Get returns a quote by id
-func (r QuotesRepository) Get(
-	ctx context.Context,
-	args *model.QuoteURLParams,
-) (model.Quote, error) {
+func (db *QuotesRepository) Get(c context.Context, arg interface{}) (interface{}, error) {
 	query := ` SELECT * FROM "quotes" WHERE "id" = $1 LIMIT 1 `
-	row := r.db.QueryRowContext(ctx, query, args.ID)
+	row := db.store.QueryRowContext(c, query, arg.(model.QuoteURLParams).ID)
 	var quote model.Quote
 
 	if err := row.Scan(
@@ -41,24 +35,21 @@ func (r QuotesRepository) Get(
 	); err != nil {
 		return quote, err
 	}
+
 	return quote, nil
 }
 
-// List returns a list of quotes with pagination
-func (r QuotesRepository) List(
-	ctx context.Context,
-	pag *types.Pageable,
-) (model.Quotes, error) {
-	query := ` SELECT *, COUNT(*) OVER() AS total  
-		FROM "quotes" 
-		ORDER by "id"
-		LIMIT $1 OFFSET $2 `
-	rows, err := r.db.QueryContext(ctx, query, pag.Limit, pag.Offset)
+func (db *QuotesRepository) List(
+	c context.Context,
+	arg types.Pageable,
+) (interface{}, interface{}, error) {
+	query := ` SELECT *, COUNT(*) OVER() AS total  FROM "quotes" ORDER by "id" LIMIT $1 OFFSET $2 `
+	rows, err := db.store.QueryContext(c, query, arg.Limit, arg.Offset)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer rows.Close()
-	var quotes []model.Quote
+	var quotes model.Quotes
 
 	for rows.Next() {
 		var quote model.Quote
@@ -69,28 +60,27 @@ func (r QuotesRepository) List(
 			&quote.CategoryID,
 			&quote.CreatedAt,
 			&quote.UpdatedAt,
-			&pag.Total,
+			&arg.Total,
 		); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		quotes = append(quotes, quote)
 	}
-	return quotes, nil
+
+	return quotes, arg, nil
 }
 
-// Create creates a new quote
-func (r QuotesRepository) Create(
-	ctx context.Context,
-	payload *model.QuoteRequestPayload,
-) (model.Quote, error) {
+func (db *QuotesRepository) Create(c context.Context, arg interface{}) (interface{}, error) {
 	now := time.Now().UTC()
 	query := ` INSERT INTO "quotes" 
 		("content", "author_id", "created_at", "updated_at", "category_id")
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING * `
 
-	row := r.db.QueryRowContext(
-		ctx, query,
+	payload := arg.(model.QuoteRequestPayload)
+
+	row := db.store.QueryRowContext(
+		c, query,
 		payload.Content, payload.AuthorID, now, now, payload.CategoryID,
 	)
 
@@ -113,7 +103,6 @@ func (r QuotesRepository) Create(
 				payload.CategoryID,
 			)
 		}
-
 		if ok && pqErr.Constraint == "quotes_author_id_fkey" {
 			fmt.Println(pqErr.Message)
 			return quote, fmt.Errorf(
@@ -121,39 +110,29 @@ func (r QuotesRepository) Create(
 				payload.AuthorID,
 			)
 		}
-
 		return quote, err
 	}
-
 	return quote, nil
 }
 
-// Delete deletes a quote by id
-func (r QuotesRepository) Delete(ctx context.Context, args *model.QuoteURLParams) error {
-	query := ` DELETE FROM "quotes" WHERE "id" = $1 `
-	_, err := r.db.ExecContext(ctx, query, args.ID)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// Update updates a quote by id
-func (r QuotesRepository) Update(
-	ctx context.Context,
-	params *model.QuoteURLParams,
-	payload *model.QuoteRequestPayload,
-) (model.Quote, error) {
+func (db *QuotesRepository) Update(
+	c context.Context,
+	arg interface{},
+	pay interface{},
+) (interface{}, error) {
+	param := arg.(model.QuoteURLParams)
+	payload := pay.(model.QuoteRequestPayload)
 	query := ` UPDATE "quotes" 
 		SET "content" = $1, "author_id" = $2, "updated_at" = $3, "category_id" = $4
 		WHERE "id" = $5
 		RETURNING * `
 
-	row := r.db.QueryRowContext(
-		ctx, query,
-		payload.Content, payload.AuthorID, time.Now().UTC(), payload.CategoryID, params.ID,
+	row := db.store.QueryRowContext(
+		c, query,
+		payload.Content, payload.AuthorID, time.Now().UTC(), payload.CategoryID, param.ID,
 	)
 	var quote model.Quote
+
 	err := row.Scan(
 		&quote.ID,
 		&quote.Content,
@@ -163,7 +142,17 @@ func (r QuotesRepository) Update(
 		&quote.UpdatedAt,
 	)
 	if err != nil {
-		return quote, fmt.Errorf("error: quote with \"id\" %d not found", params.ID)
+		return quote, fmt.Errorf("error: quote with \"id\" %d not found", param.ID)
 	}
 	return quote, nil
+}
+
+func (db *QuotesRepository) Delete(c context.Context, arg interface{}) error {
+	query := ` DELETE FROM "quotes" WHERE "id" = $1 `
+	_, err := db.store.ExecContext(c, query, arg.(model.QuoteURLParams).ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

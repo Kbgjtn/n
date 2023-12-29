@@ -5,16 +5,13 @@ import (
 )
 
 type Pageable struct {
-	Offset uint64 `json:"offset"`
-	Limit  uint64 `json:"limit"`
-	Total  int64  `json:"total"`
-	Prev   int64  `json:"prev"`
-	Next   int64  `json:"next"`
-}
-
-type QueryParams struct {
-	Pageable
-	Sort string `json:"sort"`
+	Offset  uint64 `json:"offset"`
+	Limit   uint64 `json:"limit"`
+	Total   int64  `json:"total"`
+	Prev    int64  `json:"prev"`
+	Next    int64  `json:"next"`
+	HasNext bool   `json:"has_next"`
+	HasPrev bool   `json:"has_prev"`
 }
 
 func (p Pageable) Validate() (uint64, uint64) {
@@ -49,6 +46,8 @@ func (p Pageable) Parse(limit, offset string) Pageable {
 }
 
 func (p *Pageable) Calc() {
+	p.HasNextPage()
+	p.HasPrevPage()
 	p.NextPage()
 	p.PrevPage()
 }
@@ -65,4 +64,12 @@ func (p *Pageable) PrevPage() {
 	if p.Prev < 0 {
 		p.Prev = 0
 	}
+}
+
+func (p *Pageable) HasNextPage() bool {
+	return p.Next < p.Total
+}
+
+func (p *Pageable) HasPrevPage() bool {
+	return p.Prev > 0
 }

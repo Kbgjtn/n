@@ -15,8 +15,7 @@ migratedown:
 	@migrate
 
 run: 
-	@echo "Running...\n"
-	@echo "${PORT}"
+	@echo "Running Server..."
 	@go run main.go
 
 test:
@@ -29,6 +28,8 @@ tidy:
 
 setup:
 	@echo "Setting up server...\n"
+	@echo "Copying .env.example to .env.local...\n"
+	@cp -pf .env.example .env.local
 	@echo "Installing dependencies...\n"
 	@go mod download
 	@echo "tidying...\n"
@@ -37,6 +38,5 @@ setup:
 	@docker-compose up -d
 	@echo " ===== Setting up is done  ===== "
 	@echo " ===== Run 'make run' to start server ===== "
-	@make run
 
 .PHONY: upd downd run tidy migrateup migratedown test setup
