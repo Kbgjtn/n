@@ -65,8 +65,10 @@ func NewServer() *Server {
 // Start starts the server
 func (s *Server) Start(ctx context.Context) error {
 	server := &http.Server{
-		Addr:    s.config.port,
-		Handler: s.router,
+		Addr:         s.config.port,
+		Handler:      s.router,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	slog.Info("[ Server started on port: " + s.config.port + " ]")
