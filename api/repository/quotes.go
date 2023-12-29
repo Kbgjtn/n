@@ -33,7 +33,7 @@ func (db *QuotesRepository) Get(c context.Context, arg interface{}) (interface{}
 		&quote.CreatedAt,
 		&quote.UpdatedAt,
 	); err != nil {
-		return quote, err
+		return nil, err
 	}
 
 	return quote, nil

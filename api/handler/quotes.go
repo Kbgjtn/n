@@ -56,7 +56,8 @@ func (rs QuotesResource) List(w http.ResponseWriter, r *http.Request) {
 
 func (rs QuotesResource) Delete(w http.ResponseWriter, r *http.Request) {
 	requestIDParam := r.Context().Value(chi.RouteCtxKey).(*chi.Context).URLParam("id")
-	reqDTO, err := model.QuoteURLParams{}.Parse(requestIDParam)
+	var reqDTO model.QuoteURLParams
+	err := reqDTO.Parse(requestIDParam)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -76,7 +77,9 @@ func (rs QuotesResource) Delete(w http.ResponseWriter, r *http.Request) {
 
 func (rs QuotesResource) Get(w http.ResponseWriter, r *http.Request) {
 	requestIDParam := r.Context().Value(chi.RouteCtxKey).(*chi.Context).URLParam("id")
-	reqDTO, err := model.QuoteURLParams{}.Parse(requestIDParam)
+
+	var reqDTO model.QuoteURLParams
+	err := reqDTO.Parse(requestIDParam)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -90,7 +93,7 @@ func (rs QuotesResource) Get(w http.ResponseWriter, r *http.Request) {
 
 	jsonData, err := json.Marshal(data.(model.Quote).CreateResponseDto())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -133,7 +136,8 @@ func (rs QuotesResource) Create(w http.ResponseWriter, r *http.Request) {
 
 func (rs QuotesResource) Update(w http.ResponseWriter, r *http.Request) {
 	requestIDParam := r.Context().Value(chi.RouteCtxKey).(*chi.Context).URLParam("id")
-	params, err := model.QuoteURLParams{}.Parse(requestIDParam)
+	var reqDTO model.QuoteURLParams
+	err := reqDTO.Parse(requestIDParam)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -151,7 +155,7 @@ func (rs QuotesResource) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := rs.repo.Update(r.Context(), params, payload)
+	data, err := rs.repo.Update(r.Context(), reqDTO, payload)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))

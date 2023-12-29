@@ -11,5 +11,3 @@ type Repository interface {
 	Update(context.Context, interface{}, interface{}) (interface{}, error)
 	Delete(context.Context, interface{}) error
 }
-
-type Service Repository

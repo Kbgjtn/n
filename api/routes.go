@@ -1,6 +1,10 @@
 package api
 
 import (
+	"context"
+	"io"
+
+	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
@@ -8,6 +12,10 @@ import (
 	"github.com/Kbgjtn/notethingness-api.git/api/repository"
 	"github.com/Kbgjtn/notethingness-api.git/types"
 )
+
+func Render(ctx context.Context, w io.Writer, c templ.Component) error {
+	return c.Render(ctx, w)
+}
 
 func (s *Server) Routes() {
 	router := chi.NewRouter()

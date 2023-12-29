@@ -124,14 +124,14 @@ type QuoteURLParams struct {
 }
 
 // Parse parses the id url parameter
-func (req QuoteURLParams) Parse(value string) (QuoteURLParams, error) {
+func (req *QuoteURLParams) Parse(value string) error {
 	p, err := strconv.ParseInt(value, 10, 64)
 	if err != nil {
-		return req, fmt.Errorf("param \"id\" is required and must be a number")
+		return fmt.Errorf("param \"id\" is required and must be a number")
 	}
 
 	req.ID = p
-	return req, nil
+	return nil
 }
 
 // GetQuoteResponse is the response dto for a single quote
