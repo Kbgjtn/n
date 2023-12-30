@@ -12,4 +12,9 @@ type Repository interface {
 	Delete(context.Context, interface{}) error
 }
 
-type Service Repository
+type Env struct {
+	Port    string
+	Host    string
+	DBUrl   string
+	SSLMode string
+}
