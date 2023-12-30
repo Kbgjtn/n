@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	pq "github.com/lib/pq"
+	"github.com/lib/pq"
 	"github.com/mattes/migrate"
 	_ "github.com/mattes/migrate/database/postgres"
 	_ "github.com/mattes/migrate/source/file"
@@ -13,23 +13,21 @@ import (
 
 // Database is an interface for database
 type Database interface {
-	Connect(connStr string) (*sql.DB, error)
-	RunMigration(connStr string) error
-	RollbackMigration(connStr string) error
+	Connect(string) (*sql.DB, error)
+	RunMigration(string, string) error
+	RollbackMigration(string, string) error
 }
 
-// RealDatabase is a real implementation of Database
-type RealDatabase struct {
-	migrateDir string
-}
+// DatabaseInstance is a real implementation of Database
+type DatabaseInstance struct{}
 
 // NewDatabase returns a new instance of Database
-func NewDatabase(migrateDir string) Database {
-	return &RealDatabase{migrateDir}
+func NewDatabase() *DatabaseInstance {
+	return &DatabaseInstance{}
 }
 
 // Connect to database using connection string
-func (rdb *RealDatabase) Connect(connStr string) (*sql.DB, error) {
+func (rdb *DatabaseInstance) Connect(connStr string) (*sql.DB, error) {
 	const maxOpenConns = 100
 	const maxIdleConns = 10
 
@@ -51,14 +49,14 @@ func (rdb *RealDatabase) Connect(connStr string) (*sql.DB, error) {
 }
 
 // RunMigration runs migration
-func (rdb *RealDatabase) RunMigration(connStr string) error {
+func (rdb *DatabaseInstance) RunMigration(connStr, migrateDir string) error {
 	db, err := rdb.Connect(connStr)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	migration, err := migrate.New(rdb.migrateDir, connStr)
+	migration, err := migrate.New(migrateDir, connStr)
 	if err != nil {
 		return err
 	}
@@ -76,8 +74,8 @@ func (rdb *RealDatabase) RunMigration(connStr string) error {
 	return nil
 }
 
-func (rdb *RealDatabase) RollbackMigration(connStr string) error {
-	migration, err := migrate.New(rdb.migrateDir, connStr)
+func (rdb *DatabaseInstance) RollbackMigration(connStr, migrateDir string) error {
+	migration, err := migrate.New(migrateDir, connStr)
 	if err != nil {
 		return err
 	}

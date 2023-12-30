@@ -16,7 +16,7 @@ var (
 )
 
 func TestRealDatabase(t *testing.T) {
-	db = NewDatabase("file://migration").(*RealDatabase)
+	db = NewDatabase()
 	assert.NotNil(t, db)
 }
 
@@ -32,21 +32,21 @@ func TestConnect(t *testing.T) {
 }
 
 func TestRunMigration(t *testing.T) {
-	err := db.RunMigration(testConnStr)
+	err := db.RunMigration(testConnStr, "file:///migration")
 
 	assert.NoError(t, err, "Test RunMigration should not return an error")
 	assert.Nil(t, err, "Test RunMigration should set the migration to nil")
 }
 
 func TestRollbackMigration(t *testing.T) {
-	err := db.RollbackMigration(testConnStr)
+	err := db.RollbackMigration(testConnStr, "file:///migration")
 
 	assert.NoError(t, err, "Test RollbackMigration should not return an error")
 	assert.Nil(t, err, "Test RollbackMigration should set the migration to nil")
 }
 
 func TestRollbackMigrationError(t *testing.T) {
-	err := db.RollbackMigration("bad connection string")
+	err := db.RollbackMigration("bad connection string", "file:///migration")
 
 	assert.Error(t, err, "Test RollbackMigration should return an error")
 	assert.NotNil(t, err, "Test RollbackMigration should not set the migration to nil")
@@ -67,7 +67,7 @@ func TestConnectError(t *testing.T) {
 }
 
 func TestRunMigrationError(t *testing.T) {
-	err := db.RunMigration("bad connection string")
+	err := db.RunMigration("bad connection string", "file:///migration")
 
 	assert.Error(t, err, "Test RunMigration should return an error")
 	assert.NotNil(t, err, "Test RunMigration should not set the migration to nil")

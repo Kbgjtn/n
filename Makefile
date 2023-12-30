@@ -14,14 +14,11 @@ migratedown:
 	@echo "Running migration schema"
 	@migrate
 
-run: 
-	@echo "Running Test ..."
-	@go test -v ./...
-	@echo "Success Running Test..."
-	@sleep 3
-	@echo "Running Server..."
-	@clear
-	@go run main.go
+build:
+	@go build -o bin/main.exe
+
+run: build
+	@bin/main.exe
 
 test:
 	@echo "Testing..."
@@ -41,7 +38,9 @@ setup:
 	@go mod tidy
 	@echo "create database...\n"
 	@docker-compose up -d
+	@echo " ===== build main... ====="
+	@go build -o bin/main.exe
 	@echo " ===== Setting up is done  ===== "
 	@echo " ===== Run 'make run' to start server ===== "
 
-.PHONY: upd downd run tidy migrateup migratedown test setup
+.PHONY: upd downd run tidy migrateup migratedown test setup build

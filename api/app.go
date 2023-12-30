@@ -6,52 +6,42 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/Kbgjtn/notethingness-api.git/db"
+	"github.com/Kbgjtn/notethingness-api.git/types"
+	"github.com/Kbgjtn/notethingness-api.git/util"
 )
-
-type Config struct {
-	port    string
-	host    string
-	url     string
-	connStr string
-}
 
 type Server struct {
 	router http.Handler
 	db     *sql.DB
-	config *Config
+	config types.Env
 }
 
 func NewServer() *Server {
-	config := &Config{
-		port:    ":" + os.Getenv("PORT"),
-		host:    os.Getenv("HOST"),
-		url:     fmt.Sprintf("http://%s:%s", os.Getenv("HOST"), os.Getenv("PORT")),
-		connStr: os.Getenv("DB_URL"),
-	}
+	config := util.GetEnv()
 
-	db := db.NewDatabase("file://db/migration")
+	db := db.NewDatabase()
 	slog.Info("[ ☘️ Connect to DB POSTGRES ]")
-	dbConnection, err := db.Connect(config.connStr)
+
+	store, err := db.Connect(config.DBUrl)
 	if err != nil {
 		panic(err)
 	}
 
 	server := &Server{
-		db:     dbConnection,
+		db:     store,
 		config: config,
 	}
 
 	slog.Info("[ ☘️ Run migration rollback ]")
-	if err := db.RollbackMigration(config.connStr); err != nil {
+	if err := db.RollbackMigration(config.DBUrl, "file://db/migration"); err != nil {
 		panic(err)
 	}
 
 	slog.Info("[ ☘️ Run migration ]")
-	if err := db.RunMigration(config.connStr); err != nil {
+	if err := db.RunMigration(config.DBUrl, "file://db/migration"); err != nil {
 		panic(err)
 	}
 
@@ -62,18 +52,14 @@ func NewServer() *Server {
 // Start starts the server
 func (s *Server) Start(ctx context.Context) error {
 	server := &http.Server{
-		Addr:         s.config.port,
+		Addr:         fmt.Sprintf(":%s", s.config.Port),
 		Handler:      s.router,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
-	slog.Info("[ Server started on port: " + s.config.port + " ]")
-	defer func() {
-		if err := s.db.Close(); err != nil {
-			slog.Error("[ Failed to close DB connection ]" + "\nError: " + err.Error())
-		}
-	}()
+	slog.Info("[ Server started on port: " + s.config.Port + " ]")
+	defer func() {}()
 
 	// Using a buffered channel to avoid goroutine leaks
 	channel := make(chan error, 1)
