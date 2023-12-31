@@ -30,14 +30,12 @@ func (s *Server) Router() {
 }
 
 func (s *Server) InitRoutes(router chi.Router) {
-	r := repository.NewQuoteRepo(s.db)
-
 	router.Route("/quotes", func(route chi.Router) {
-		handler.New(r).Routes(route)
+		handler.New(repository.NewQuoteRepo(s.db)).Routes(route)
 	})
 
 	router.Route("/categories", func(route chi.Router) {
-		handler.NewCategory().Routes(route)
+		handler.NewCategory(repository.NewCategoryRepo(s.db)).Routes(route)
 	})
 
 	router.Get("/openapi", func(w http.ResponseWriter, r *http.Request) {

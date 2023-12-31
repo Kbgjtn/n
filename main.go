@@ -21,7 +21,6 @@ func initServer(ctx context.Context) error {
 
 // @host localhost:3000
 // @BasePath /api
-
 func main() {
 	serverCtx, stopCtx := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stopCtx()

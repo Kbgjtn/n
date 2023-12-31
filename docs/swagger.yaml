@@ -6,7 +6,13 @@ definitions:
         example: 1
         type: integer
       label:
-        example: Category 1
+        example: My Category
+        type: string
+    type: object
+  model.CategoryRequestPayload:
+    properties:
+      label:
+        example: My Category
         type: string
     type: object
   model.Quote:
@@ -82,9 +88,17 @@ paths:
       - application/json
       description: Get List of categories
       parameters:
-      - description: Pagination
+      - default: "0"
+        description: string default example
+        example: "1"
         in: query
-        name: Pagination
+        name: offset
+        type: string
+      - default: "10"
+        description: string default example
+        example: "20"
+        in: query
+        name: limit
         type: string
       produces:
       - application/json
@@ -92,17 +106,82 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Category'
+            allOf:
+            - $ref: '#/definitions/types.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Category'
+                  type: array
+              type: object
+        "400":
+          description: 'Bad Request: error message'
+          schema:
+            type: string
       summary: Get list
       tags:
       - category
+    post:
+      consumes:
+      - application/json
+      description: Create a new category
+      parameters:
+      - description: default
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CategoryRequestPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/types.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Category'
+              type: object
+        "400":
+          description: 'Bad Request: label is invalid or missing'
+          schema:
+            type: string
+      summary: Create a new category
+      tags:
+      - category
   /categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: 'Bad Request: id is invalid or missing'
+          schema:
+            type: string
+      summary: Delete a category
+      tags:
+      - category
     get:
       consumes:
       - application/json
       description: Get a category by id
       parameters:
-      - description: Category ID
+      - description: Quote ID
         in: path
         name: id
         required: true
@@ -115,10 +194,45 @@ paths:
           schema:
             $ref: '#/definitions/model.Category'
         "400":
-          description: 'error: id is invalid or missing'
+          description: 'Bad Request: id is invalid or missing'
           schema:
             type: string
       summary: Get By ID
+      tags:
+      - category
+    put:
+      consumes:
+      - application/json
+      description: Update a category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: default
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CategoryRequestPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/types.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Category'
+              type: object
+        "400":
+          description: 'Bad Request: id is invalid or missing'
+          schema:
+            type: string
+      summary: Update a category
       tags:
       - category
   /quotes:

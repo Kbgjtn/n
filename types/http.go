@@ -91,10 +91,10 @@ func (p *Pageable) PrevPage() {
 	}
 }
 
-func (p *Pageable) HasNextPage() bool {
-	return p.Next < p.Total
+func (p *Pageable) HasNextPage() {
+	p.HasNext = p.Next > 0 && p.Next <= p.Total
 }
 
-func (p *Pageable) HasPrevPage() bool {
-	return p.Prev > 0
+func (p *Pageable) HasPrevPage() {
+	p.HasPrev = p.Prev > 0 && p.Prev <= p.Total
 }
