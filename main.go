@@ -15,13 +15,22 @@ func initServer(ctx context.Context) error {
 	return server.Start(ctx)
 }
 
+// @version 1
+// @title Notethingness API
+// @description This is a sample server for Notethingness API.
+
+// @host localhost:3000
+// @BasePath /api
+
 func main() {
 	serverCtx, stopCtx := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stopCtx()
 
-	if err := initServer(serverCtx); err != nil {
+	err := initServer(serverCtx)
+	if err != nil {
 		log.Fatal("can't run the server: ", err)
 		slog.Error(" [ 💢Cannot run the server! ] " + "\nError: " + err.Error())
+		slog.ErrorContext(serverCtx, " [ 💢Cannot run the server! ] "+"\nError: "+err.Error())
 		os.Exit(1)
 	}
 }

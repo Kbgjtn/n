@@ -45,7 +45,7 @@ func NewServer() *Server {
 		panic(err)
 	}
 
-	server.Routes()
+	server.Router()
 	return server
 }
 
@@ -58,6 +58,7 @@ func (s *Server) Start(ctx context.Context) error {
 		WriteTimeout: 10 * time.Second,
 	}
 
+	slog.Info("[ See Documentation on http://localhost:" + s.config.Port + "/openapi ]")
 	slog.Info("[ Server started on port: " + s.config.Port + " ]")
 	defer func() {}()
 

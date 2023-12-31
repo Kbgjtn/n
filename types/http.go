@@ -4,6 +4,26 @@ import (
 	"strconv"
 )
 
+type JSONResult struct {
+	Code    int         `json:"code"    example:"200"`
+	Message string      `json:"message" example:"success"`
+	Data    interface{} `json:"data"`
+}
+
+type JSONError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Pointer string `json:"pointer" example:"'field_name'"`
+}
+
+type JSONResultWithPaginate struct {
+	Code     int         `json:"code"`
+	Message  string      `json:"message"`
+	Data     interface{} `json:"data"`
+	Length   int         `json:"length"`
+	Paginate *Pageable   `json:"paginate"`
+}
+
 type Pageable struct {
 	Offset  uint64 `json:"offset"`
 	Limit   uint64 `json:"limit"`
@@ -33,6 +53,7 @@ func (p Pageable) Parse(limit, offset string) Pageable {
 	}
 
 	l, _ := strconv.ParseUint(limit, 10, 64)
+
 	if l > 50 {
 		l = 50
 	}
@@ -53,6 +74,10 @@ func (p *Pageable) Calc() {
 }
 
 func (p *Pageable) NextPage() {
+	if p.Total == 0 {
+		p.Next = 0
+		return
+	}
 	p.Next = int64((p.Offset + p.Limit))
 	if p.Next >= p.Total {
 		p.Next = p.Total

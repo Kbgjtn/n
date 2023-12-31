@@ -17,7 +17,12 @@ migratedown:
 build:
 	@go build -o bin/main.exe
 
-run: build
+swg:
+	@swag init
+
+run: swg build
+	@clear
+	@echo "Starting server..."
 	@bin/main.exe
 
 test:

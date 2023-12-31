@@ -1,0 +1,288 @@
+basePath: /api
+definitions:
+  model.Category:
+    properties:
+      id:
+        example: 1
+        type: integer
+      label:
+        example: Category 1
+        type: string
+    type: object
+  model.Quote:
+    properties:
+      author_id:
+        example: 1
+        type: integer
+      category_id:
+        example: 1
+        type: integer
+      content:
+        example: I am a quote
+        type: string
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+    type: object
+  model.QuoteRequestPayload:
+    properties:
+      author_id:
+        example: 1
+        type: integer
+      category_id:
+        example: 1
+        type: integer
+      content:
+        example: I am a quote
+        type: string
+    type: object
+  types.JSONResult:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data: {}
+      message:
+        example: success
+        type: string
+    type: object
+  types.Pageable:
+    properties:
+      has_next:
+        type: boolean
+      has_prev:
+        type: boolean
+      limit:
+        type: integer
+      next:
+        type: integer
+      offset:
+        type: integer
+      prev:
+        type: integer
+      total:
+        type: integer
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: This is a sample server for Notethingness API.
+  title: Notethingness API
+  version: "1"
+paths:
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Get List of categories
+      parameters:
+      - description: Pagination
+        in: query
+        name: Pagination
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Category'
+      summary: Get list
+      tags:
+      - category
+  /categories/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a category by id
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Category'
+        "400":
+          description: 'error: id is invalid or missing'
+          schema:
+            type: string
+      summary: Get By ID
+      tags:
+      - category
+  /quotes:
+    get:
+      consumes:
+      - application/json
+      description: Get List quotes
+      parameters:
+      - default: "0"
+        description: string default example
+        example: "1"
+        in: query
+        name: offset
+        type: string
+      - default: "10"
+        description: string default example
+        example: "20"
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/types.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Quote'
+                  type: array
+                length:
+                  type: integer
+                paginate:
+                  $ref: '#/definitions/types.Pageable'
+              type: object
+        "400":
+          description: 'error: offset or limit is invalid'
+          schema:
+            type: string
+      tags:
+      - quote
+    post:
+      consumes:
+      - application/json
+      description: Create a quote
+      parameters:
+      - description: default
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.QuoteRequestPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/types.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Quote'
+              type: object
+        "400":
+          description: 'Bad Request: Invalid payload'
+          schema:
+            type: string
+      summary: Create a quote
+      tags:
+      - quote
+  /quotes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a quote by id
+      parameters:
+      - description: Quote ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: 'error: id is invalid'
+          schema:
+            type: string
+        "404":
+          description: 'error: quote not found'
+          schema:
+            type: string
+      summary: Delete a quote
+      tags:
+      - quote
+    get:
+      consumes:
+      - application/json
+      description: Get a quote by id
+      parameters:
+      - description: Quote ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/types.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Quote'
+              type: object
+        "400":
+          description: 'error: id is invalid'
+          schema:
+            type: string
+        "404":
+          description: 'error: quote not found'
+          schema:
+            type: string
+      summary: Get a quote
+      tags:
+      - quote
+    put:
+      consumes:
+      - application/json
+      description: Create a quote
+      parameters:
+      - description: default
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.QuoteRequestPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/types.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Quote'
+              type: object
+        "400":
+          description: 'Bad Request: Invalid payload'
+          schema:
+            type: string
+      summary: Create a quote
+      tags:
+      - quote
+swagger: "2.0"
