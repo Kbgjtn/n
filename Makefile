@@ -14,8 +14,16 @@ migratedown:
 	@echo "Running migration schema"
 	@migrate
 
-run: 
-	@go run main.go
+build:
+	@go build -o bin/main.exe
+
+swg:
+	@swag init
+
+run: swg build
+	@clear
+	@echo "Starting server..."
+	@bin/main.exe
 
 test:
 	@echo "Testing..."
@@ -35,7 +43,9 @@ setup:
 	@go mod tidy
 	@echo "create database...\n"
 	@docker-compose up -d
+	@echo " ===== build main... ====="
+	@go build -o bin/main.exe
 	@echo " ===== Setting up is done  ===== "
 	@echo " ===== Run 'make run' to start server ===== "
 
-.PHONY: upd downd run tidy migrateup migratedown test setup dev
+.PHONY: upd downd run tidy migrateup migratedown test setup build

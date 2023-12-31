@@ -11,3 +11,10 @@ type Repository interface {
 	Update(context.Context, interface{}, interface{}) (interface{}, error)
 	Delete(context.Context, interface{}) error
 }
+
+type Env struct {
+	Port    string
+	Host    string
+	DBUrl   string
+	SSLMode string
+}
