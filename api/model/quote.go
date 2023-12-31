@@ -37,15 +37,14 @@ func (q Quotes) Len() int {
 }
 
 // Less reports whether the element with
-func (q Quotes) CreateResponseDto(pag types.Pageable) types.JSONResultWithPaginate {
+func (q Quotes) CreateResponseDto(pag *types.Pageable) types.JSONResultWithPaginate {
 	if pag.Total > 0 {
-		pag.Calc()
 		return types.JSONResultWithPaginate{
 			Message:  "success",
 			Code:     200,
 			Data:     q,
 			Length:   len(q),
-			Paginate: &pag,
+			Paginate: pag,
 		}
 	}
 

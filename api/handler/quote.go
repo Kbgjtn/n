@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -14,10 +13,10 @@ import (
 )
 
 type QuotesResource struct {
-	repo *repo.QuotesRepository
+	repo *repo.QuoteRepository
 }
 
-func New(r *repo.QuotesRepository) *QuotesResource {
+func New(r *repo.QuoteRepository) *QuotesResource {
 	return &QuotesResource{r}
 }
 
@@ -87,15 +86,14 @@ func (rs QuotesResource) List(w http.ResponseWriter, r *http.Request) {
 	limit := r.URL.Query().Get("limit")
 	p := types.Pageable{}.Parse(limit, offset)
 
-	data, page, err := rs.repo.List(r.Context(), p)
+	data, err := rs.repo.List(r.Context(), &p)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	jsonData, err := json.Marshal(data.CreateResponseDto(page))
-	fmt.Println(string(jsonData))
+	jsonData, err := json.Marshal(data.CreateResponseDto(&p))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
